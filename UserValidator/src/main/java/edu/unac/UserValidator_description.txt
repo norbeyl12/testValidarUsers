@@ -1,0 +1,17 @@
+La clase UserValidator es responsable de validar el contenido de registros de usuarios a partir de un archivo de texto local.
+
+Cada línea en el archivo debe representar un usuario y debe seguir el siguiente formato:
+<username>,<email>,<age>
+
+Reglas de validación:
+- Las líneas que estén vacías o que comiencen con '#' (comentarios) son ignoradas.
+- Cada línea que no se ignore debe tener exactamente tres campos separados por comas.
+- El nombre de usuario (username) no debe estar vacío y no debe contener espacios.
+- El correo electrónico (email) debe contener un símbolo '@' y un símbolo '.' después del '@'.
+- La edad (age) debe ser un número entero no negativo (cero o mayor).
+
+Si una línea no cumple alguna de estas reglas, se considera inválida y será recolectada para su reporte.
+
+El método getInvalidUserLines(String filePath) lee el archivo, aplica las validaciones línea por línea y devuelve una lista con todas las líneas inválidas.
+
+Este validador ayuda a garantizar la integridad de los datos de usuario antes de su procesamiento o almacenamiento en otro lugar.

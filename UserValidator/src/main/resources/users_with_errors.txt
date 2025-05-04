@@ -1,0 +1,10 @@
+# Some valid users
+john_doe,john@example.com,25
+alice.smith,alice.smith@mail.org,30
+
+# Some invalid users
+invalid user,invalid@example.com,20
+user123,user123@domain,0
+
+# Empty line below
+

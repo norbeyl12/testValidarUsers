@@ -1,0 +1,22 @@
+package edu.unac;
+
+import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class UserValidatorTest {
+
+    @Test
+    void testValidFile(){
+        File file = new File("src/test/resources/valid_users.txt");
+        List<String> result = UserValidator.getInvalidUserLines(file);
+        assertTrue(result.isEmpty(),"Sin errores en el archivo de validacion");
+    }
+
+}

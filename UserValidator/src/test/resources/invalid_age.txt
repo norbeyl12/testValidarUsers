@@ -1,0 +1,2 @@
+john,john@example.com,-1
+jane,jane@example.com,abc
