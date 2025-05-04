@@ -1,5 +1,6 @@
 package edu.unac;
 
+import edu.unac.UserValidator;
 import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.util.List;
@@ -10,48 +11,47 @@ class UserValidatorTest {
 
     private final UserValidator validator = new UserValidator();
 
-    @Test
-    void testValidFile() {
-        File file = new File("src/test/resources/valid_users.txt");
-        List<String> result = validator.validate(file);
-        assertTrue(result.isEmpty(), "No debe haber errores");
+    private String path(String filename) {
+        return "src/test/resources/" + filename;
     }
 
     @Test
-    void testFileWithInvalidUsername() {
-        File file = new File("src/test/resources/invalid_username.txt");
-        List<String> result = validator.validate(file);
-        assertFalse(result.isEmpty());
-        assertTrue(result.get(0).contains("username inválido"));
-    }
-    @Test
-    void testFileWithInvalidEmail() {
-        File file = new File("src/test/resources/invalid_email.txt");
-        List<String> result = validator.validate(file);
-        assertFalse(result.isEmpty());
-        assertTrue(result.get(0).contains("email inválido"));
+    void testValidFile() throws IOException {
+        List<String> result = validator.getInvalidUserLines(path("valid_users.txt"));
+        assertTrue(result.isEmpty(), "No debe haber líneas inválidas");
     }
 
     @Test
-    void testFileWithInvalidAge() {
-        File file = new File("src/test/resources/invalid_age.txt");
-        List<String> result = validator.validate(file);
+    void testFileWithInvalidUsername() throws IOException {
+        List<String> result = validator.getInvalidUserLines(path("invalid_username.txt"));
         assertFalse(result.isEmpty());
-        assertTrue(result.get(0).contains("edad"));
+        assertEquals(2, result.size());
     }
 
     @Test
-    void testFileWithMissingFields() {
-        File file = new File("src/test/resources/missing_fields.txt");
-        List<String> result = validator.validate(file);
+    void testFileWithInvalidEmail() throws IOException {
+        List<String> result = validator.getInvalidUserLines(path("invalid_email.txt"));
         assertFalse(result.isEmpty());
-        assertTrue(result.get(0).contains("3 campos"));
+        assertEquals(2, result.size());
     }
 
     @Test
-    void testEmptyLinesAndComments() {
-        File file = new File("src/test/resources/empty_and_comments.txt");
-        List<String> result = validator.validate(file);
+    void testFileWithInvalidAge() throws IOException {
+        List<String> result = validator.getInvalidUserLines(path("invalid_age.txt"));
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void testFileWithMissingFields() throws IOException {
+        List<String> result = validator.getInvalidUserLines(path("missing_fields.txt"));
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void testEmptyLinesAndComments() throws IOException {
+        List<String> result = validator.getInvalidUserLines(path("empty_and_comments.txt"));
         assertTrue(result.isEmpty());
     }
 
@@ -60,10 +60,11 @@ class UserValidatorTest {
         File tempFile = File.createTempFile("users", ".txt");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
             writer.write("validUser,valid@mail.com,30\n");
-            writer.write("noEmailUser,,20\n");
+            writer.write("noEmailUser,,20\n"); // inválido
         }
-        List<String> result = validator.validate(tempFile);
+
+        List<String> result = validator.getInvalidUserLines(tempFile.getPath());
         assertEquals(1, result.size());
-        assertTrue(result.get(0).contains("email inválido"));
-}
+        assertTrue(result.get(0).contains("noEmailUser"));
+    }
 }

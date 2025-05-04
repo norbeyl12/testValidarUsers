@@ -11,56 +11,56 @@ import java.util.List;
 
 public class UserValidator {
 
-    public List<String> validate(File file) {
+    public List<String> getInvalidUserLines(String filePath) throws IOException {
         List<String> invalidLines = new ArrayList<>();
+        List<String> lines = Files.readAllLines(Paths.get(filePath));
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            int lineNumber = 1;
+        for (String line : lines) {
+            String trimmed = line.trim();
 
-            while ((line = reader.readLine()) != null) {
-                line = line.trim();
-                if (line.isEmpty() || line.startsWith("#")) {
-                    lineNumber++;
-                    continue;
-                }
+            if (trimmed.isEmpty() || trimmed.startsWith("#")) continue;
 
-                String[] parts = line.split(",");
-                if (parts.length != 3) {
-                    invalidLines.add("Línea " + lineNumber + ": debe tener exactamente 3 campos");
-                    lineNumber++;
-                    continue;
-                }
+            String[] parts = trimmed.split(",", -1);
 
-                String username = parts[0].trim();
-                String email = parts[1].trim();
-                String ageStr = parts[2].trim();
-
-                if (username.isEmpty() || username.contains(" ")) {
-                    invalidLines.add("Línea " + lineNumber + ": username inválido");
-                }
-
-                int atIndex = email.indexOf("@");
-                int dotIndex = email.indexOf(".", atIndex);
-                if (atIndex <= 0 || dotIndex <= atIndex + 1) {
-                    invalidLines.add("Línea " + lineNumber + ": email inválido");
-                }
-
-                try {
-                    int age = Integer.parseInt(ageStr);
-                    if (age < 0) {
-                        invalidLines.add("Línea " + lineNumber + ": edad negativa");
-                    }
-                } catch (NumberFormatException e) {
-                    invalidLines.add("Línea " + lineNumber + ": edad no es numérica");
-                }
-
-                lineNumber++;
+            if (parts.length != 3) {
+                invalidLines.add(line);
+                continue;
             }
-        } catch (IOException e) {
-            invalidLines.add("Error al leer el archivo: " + e.getMessage());
+
+            String username = parts[0].trim();
+            String email = parts[1].trim();
+            String ageStr = parts[2].trim();
+
+            if (username.isEmpty() || username.contains(" ")) {
+                invalidLines.add(line);
+                continue;
+            }
+
+            if (!isValidEmail(email)) {
+                invalidLines.add(line);
+                continue;
+            }
+
+            if (!isValidNonNegativeInteger(ageStr)) {
+                invalidLines.add(line);
+            }
         }
 
         return invalidLines;
-}
+    }
+
+    private boolean isValidEmail(String email) {
+        int atIndex = email.indexOf("@");
+        int dotIndex = email.lastIndexOf(".");
+        return atIndex > 0 && dotIndex > atIndex;
+    }
+
+    private boolean isValidNonNegativeInteger(String value) {
+        try {
+            int num = Integer.parseInt(value);
+            return num >= 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }
